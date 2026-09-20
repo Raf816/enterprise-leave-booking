@@ -1,0 +1,56 @@
+package com.staffs.leavebooking.leavemanagement.application.mappers;
+
+import com.staffs.leavebooking.leavemanagement.domain.LeaveRequest;
+import com.staffs.leavebooking.leavemanagement.domain.LeaveRequestStatus;
+import com.staffs.leavebooking.leavemanagement.domain.LeaveType;
+import com.staffs.leavebooking.leavemanagement.infrastructure.entities.LeaveRequestJpa;
+import com.staffs.leavebooking.testfixtures.JpaEntityMother;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+@DisplayName("LeaveRequestJpaToDomainMapper")
+class LeaveRequestJpaToDomainMapperTest {
+
+    @Nested
+    @DisplayName("toDomain()")
+    class ToDomain {
+
+        @Test
+        @DisplayName("Should map all fields correctly")
+        void shouldMapAllFields() {
+            LeaveRequestJpa jpa = JpaEntityMother.leaveRequestJpa();
+
+            LeaveRequest domain = LeaveRequestJpaToDomainMapper.toDomain(jpa);
+
+            assertEquals(jpa.getId(), domain.id().id());
+            assertEquals(jpa.getStaffMemberId(), domain.staffMemberId());
+            assertEquals(jpa.getManagerId(), domain.managerId());
+            assertEquals(LeaveType.ANNUAL, domain.leaveType());
+            assertEquals(jpa.getStartDate(), domain.dateRange().startDate());
+            assertEquals(jpa.getEndDate(), domain.dateRange().endDate());
+            assertEquals(jpa.getNumberOfDays(), domain.numberOfDays());
+            assertEquals(jpa.getReason(), domain.reason());
+            assertEquals(LeaveRequestStatus.PENDING, domain.status());
+            assertEquals(jpa.getSubmittedOn(), domain.submittedOn());
+        }
+
+        @Test
+        @DisplayName("Should not raise events (uses reconstitute)")
+        void shouldNotRaiseEvents() {
+            LeaveRequestJpa jpa = JpaEntityMother.leaveRequestJpa();
+
+            LeaveRequest domain = LeaveRequestJpaToDomainMapper.toDomain(jpa);
+
+            assertTrue(domain.listOfDomainEvents().isEmpty());
+        }
+
+        @Test
+        @DisplayName("Should throw NullPointerException for null JPA entity")
+        void shouldThrowForNullJpa() {
+            assertThrows(NullPointerException.class,
+                    () -> LeaveRequestJpaToDomainMapper.toDomain(null));
+        }
+    }
+}

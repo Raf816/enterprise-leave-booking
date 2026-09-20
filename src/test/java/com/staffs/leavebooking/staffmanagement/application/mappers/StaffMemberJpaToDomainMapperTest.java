@@ -1,0 +1,58 @@
+package com.staffs.leavebooking.staffmanagement.application.mappers;
+
+import com.staffs.leavebooking.staffmanagement.domain.EmploymentStatus;
+import com.staffs.leavebooking.staffmanagement.domain.EmploymentType;
+import com.staffs.leavebooking.staffmanagement.domain.StaffMember;
+import com.staffs.leavebooking.staffmanagement.infrastructure.entities.StaffMemberJpa;
+import com.staffs.leavebooking.testfixtures.JpaEntityMother;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+@DisplayName("StaffMemberJpaToDomainMapper")
+class StaffMemberJpaToDomainMapperTest {
+
+    @Nested
+    @DisplayName("toDomain()")
+    class ToDomain {
+
+        @Test
+        @DisplayName("Should map all fields correctly")
+        void shouldMapAllFields() {
+            StaffMemberJpa jpa = JpaEntityMother.staffMemberJpa();
+
+            StaffMember domain = StaffMemberJpaToDomainMapper.toDomain(jpa);
+
+            assertEquals(jpa.getId(), domain.id().id());
+            assertEquals(jpa.getFirstName(), domain.fullName().firstName());
+            assertEquals(jpa.getSurname(), domain.fullName().surname());
+            assertEquals(jpa.getEmail(), domain.email().address());
+            assertEquals(jpa.getDepartment(), domain.department());
+            assertEquals(jpa.getLineManagerId(), domain.lineManagerId());
+            assertEquals(jpa.getHireDate(), domain.hireDate());
+            assertEquals(jpa.getCurrentRole(), domain.currentRole());
+            assertEquals(jpa.getStartDateCurrentRole(), domain.startDateOfCurrentRole());
+            assertEquals(jpa.getJobLevel(), domain.jobLevel());
+            assertEquals(EmploymentType.FULL_TIME, domain.employmentType());
+            assertEquals(EmploymentStatus.ACTIVE, domain.employmentStatus());
+        }
+
+        @Test
+        @DisplayName("Should not raise events (uses reconstitute)")
+        void shouldNotRaiseEvents() {
+            StaffMemberJpa jpa = JpaEntityMother.staffMemberJpa();
+
+            StaffMember domain = StaffMemberJpaToDomainMapper.toDomain(jpa);
+
+            assertTrue(domain.listOfDomainEvents().isEmpty());
+        }
+
+        @Test
+        @DisplayName("Should throw NullPointerException for null JPA entity")
+        void shouldThrowForNullJpa() {
+            assertThrows(NullPointerException.class,
+                    () -> StaffMemberJpaToDomainMapper.toDomain(null));
+        }
+    }
+}
